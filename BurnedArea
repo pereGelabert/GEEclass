@@ -1,0 +1,2 @@
+// Burned area code
+var dataset= ee.Imagecollection("")
