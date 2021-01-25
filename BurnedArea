@@ -21,7 +21,7 @@
 //########### STEP2: SELECT AN IMAGECOLLECTION AND BAND ##############################
 //####################################################################################
 
-// Visit https://developers.google.com/earth-engine/datasets to to see all available datasets
+// Visit https://developers.google.com/earth-engine/datasets to see all available datasets
 // We select MCD64A1.006 MODIS Burned Area Monthly Global 500m
 // We should visit product information page: 
 // https://developers.google.com/earth-engine/datasets/catalog/MODIS_006_MCD64A1#description
