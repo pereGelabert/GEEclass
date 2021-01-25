@@ -1,2 +1,54 @@
-// Burned area code
-var dataset= ee.Imagecollection("")
+//######################################################################################################## 
+//#                                                                                                    #\\
+//#                                MODIS Burned Area 500 meters                                        #\\
+//#                                                                                                    #\\
+//########################################################################################################
+
+
+// date: 2021-01-25
+// author: Pere Joan Gelabert Vadillo | perejoan.gelabert@udl.cat
+//       
+
+
+//####################################################################################
+//########### STEP1: DEFINE GEOMETRY TO SET UP THE MAP CENTER AND ZOOM################
+//####################################################################################
+
+// Create a new gemoetry using the top-left drawing buttons.
+
+
+//####################################################################################
+//########### STEP2: SELECT AN IMAGECOLLECTION AND BAND ##############################
+//####################################################################################
+
+// Visit https://developers.google.com/earth-engine/datasets to to see all available datasets
+// We select MCD64A1.006 MODIS Burned Area Monthly Global 500m
+// We should visit product information page: 
+// https://developers.google.com/earth-engine/datasets/catalog/MODIS_006_MCD64A1#description
+var dataset = ee.ImageCollection('MODIS/006/MCD64A1')
+                  .filter(ee.Filter.date('2019-01-01', '2019-12-01'));
+var burnedArea = dataset.select('BurnDate');
+
+
+// Set up map display
+Map.centerObject(geometry, 10);
+// Display the layer
+Map.addLayer(burnedArea,{}, 'Burned Area');
+
+//####################################################################################
+//########### STEP3: DOWNLOAD ########################################################
+//####################################################################################
+
+// Create a new gemoetry, prefereably rectangle, using the top-left drawing buttons.
+
+Export.image.toDrive({
+  image: burnedArea.reduce(ee.Reducer.firstNonNull()).clip(geometry2), // image to download. we reduce the imageCollection to an image and clip it.
+  description: 'BurnedareaTorre', // File name
+  folder: 'BurnArea', // save Folder
+  scale: 500, //resolution in m
+  region: geometry2,
+  fileFormat: 'GeoTIFF', //file format
+  formatOptions: {
+    cloudOptimized: true // optimization
+  }
+});
