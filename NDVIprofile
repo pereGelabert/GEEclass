@@ -1,0 +1,56 @@
+//######################################################################################################## 
+//#                                                                                                    #\\
+//#                                Landsat NDVI profile                                                #\\
+//#                                                                                                    #\\
+//########################################################################################################
+
+
+
+// date: 2021-jan-25
+// author: Pere Joan Gelabert Vadillo | perejoan.gelabert@udl.cat
+
+Map.setOptions('HYBRID'); //set satellite imagery background
+var ltgee = require('users/emaprlab/public:Modules/LandTrendr.js');
+var perimeters = ee.FeatureCollection("users/pjgelabert/perimeters50ha");
+
+// Parameters to be fixed 
+var ID = "1998080180"; //Fire code specification to search it in database
+var geometry = perimeters.filter(ee.Filter.eq('CODI_FINAL', ID)); // Retrieve perimeter geometry
+var aoi = /* color: #98ff00 */ee.Geometry.Point([1.5525131571514672, 41.92868296217213]);
+// load the LandTrendr.js module
+var ltgee = require('users/emaprlab/public:Modules/LandTrendr.js');
+
+// define parameters
+var startYear = 1985;
+var endYear = 2020;
+var startDay = '06-20';
+var endDay = '09-20';
+//var aoi = ee.Geometry.Point(-122.8848, 43.7929);
+var bandList = ['NDVI'];
+
+// center and zoom the display in case outputs are to be mapped 
+Map.centerObject(aoi,10);
+Map.addLayer(aoi)
+// build annual surface reflectance collection (cloud and shadow masked medoid composite)
+var annualSRcollection = ltgee.buildSRcollection(startYear, endYear, startDay, endDay, aoi);
+
+var clip = (function(img) { return img.clip(geometry); }); //Function definition to clip imabe by perimeter
+
+// transform the annual surface reflectance bands to whatever is in the bandList variable
+var indexCollection = ltgee.transformSRcollection(annualSRcollection, bandList).map(clip);
+
+// example of extracting year 2000 as an image from the collection
+var year2000 = ee.Image(indexCollection.filterDate('2000-01-01','2000-12-31').first());
+var ndviParams = {min: 100, max: 400, palette: ['red', 'yellow', 'green']};
+Map.addLayer(year2000.clip(geometry),ndviParams,"NDVI 2000");
+
+
+   
+var timeseries = ui.Chart.image.seriesByRegion(
+  indexCollection, geometry , ee.Reducer.mean(), 'NDVI', 30)
+  .setOptions({
+    title : 'NDVI',
+    xAxis : {title : 'YEAR'},
+    yAxis : {title : 'NDVI'}
+    });
+  print(timeseries);
