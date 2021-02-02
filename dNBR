@@ -12,6 +12,7 @@
 
 Map.setOptions('HYBRID'); //set satellite imagery background
 var clip = (function(img) { return img.clip(geometry); }); //Function definition to clip imabe by perimeter
+var perimeters = ee.FeatureCollection("users/pjgelabert/perimeters50ha");
 
 // Parameters to be fixed 
 var ID = "2019430119"; //Fire code specification to search it in database
